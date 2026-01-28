@@ -489,7 +489,7 @@ jobs:
         test_function: ${{ fromJson(needs.discover_tests.outputs.matrix) }}
 
     steps:
-      - name: Run test suite - ${{ matrix.test_function }}
+      - name: Run test suite for examples file
         run: |
           EXITCODE=1
           CONTAINER_NAME="hpu-plugin-test-e2e-${{ github.event.pull_request.head.sha }}-${{ matrix.test_function }}"
@@ -506,14 +506,14 @@ jobs:
             -e HF_TOKEN=${{ secrets.HF_TOKEN }} \
             -v /mnt/hf_cache:/workspace/hf_cache \
             hpu-plugin-v1-test-env-pre-merge-${{ github.event.pull_request.head.sha }} \
-            /bin/bash "/workspace/vllm-gaudi/examples/run_tests_v1.sh" "${{ matrix.test_function }}"
+            /bin/bash "/workspace/vllm-gaudi/examples/run_tests_v1.sh"
 
           EXITCODE=$?
           echo "Test script exited with code: $EXITCODE"
 
   pre_merge_hpu_test:
     # --- UPDATED: Add discover_runner dependency ---
-    needs: [hpu_unit_tests, e2e, hpu_perf_tests, discover_runner]
+    needs: [hpu_unit_tests, e2e, examples, hpu_perf_tests, discover_runner]
     # --- UPDATED: Run on the specific node ---
     runs-on: ${{ needs.discover_runner.outputs.runner_name }}
     # This job is required to pass for pre-merge CI. By itself it does nothing, and will only pass if all jobs specified in "needs" list pass.
